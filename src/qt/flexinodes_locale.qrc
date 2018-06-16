@@ -1,0 +1,20 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/translations">
+        <file alias="bg">locale/flexinodes_bg.qm</file>
+        <file alias="de">locale/flexinodes_de.qm</file>
+        <file alias="en">locale/flexinodes_en.qm</file>
+        <file alias="es">locale/flexinodes_es.qm</file>
+        <file alias="fi">locale/flexinodes_fi.qm</file>
+        <file alias="fr">locale/flexinodes_fr.qm</file>
+        <file alias="it">locale/flexinodes_it.qm</file>
+        <file alias="ja">locale/flexinodes_ja.qm</file>
+        <file alias="pl">locale/flexinodes_pl.qm</file>
+        <file alias="pt">locale/flexinodes_pt.qm</file>
+        <file alias="ru">locale/flexinodes_ru.qm</file>
+        <file alias="sk">locale/flexinodes_sk.qm</file>
+        <file alias="sv">locale/flexinodes_sv.qm</file>
+        <file alias="vi">locale/flexinodes_vi.qm</file>
+        <file alias="zh_CN">locale/flexinodes_zh_CN.qm</file>
+        <file alias="zh_TW">locale/flexinodes_zh_TW.qm</file>
+    </qresource>
+</RCC>

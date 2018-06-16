@@ -1,0 +1,35 @@
+./autogen.sh
+
+CPPFLAGS="-I/c/devel/db-4.8.30/build_unix \
+-I/c/devel/miniupnpc-1.9 \
+-I/c/devel/openssl-1.0.2o/include \
+-I/c/devel \
+-I/c/devel/protobuf-2.6.1/src \
+-I/c/devel/libpng-1.6.16 \
+-I/c/devel/qrencode-3.4.4 \
+-DMINIUPNP_STATICLIB" \
+LDFLAGS="-L/c/deps/db-4.8.30/build_unix \
+-L/c/devel/openssl-1.0.1k \
+-L/c/devel/miniupnpc-1.9 \
+-L/c/devel/protobuf-2.6.1/src/.libs \
+-L/c/devel/libpng-1.6.16/.libs \
+-L/c/devel/qrencode-3.4.4/.libs \
+-L/c/devel/qt5.5.0-static/lib \
+-L/c/devel/qt5.5.0-static/plugins" \
+BOOST_ROOT=/c/devel/boost_1_55_0 \
+./configure \
+--disable-tests \
+--disable-upnp-default \
+--with-qt-incdir=/c/devel/qt5.5.0-static/include \
+--with-qt-libdir=/c/devel/qt5.5.0-static/lib \
+--with-qt-plugindir=/c/devel/qt5.5.0-static/plugins \
+--with-qt-bindir=/c/devel/qt5.5.0-static/bin \
+--with-protoc-bindir=/c/devel/protobuf-2.6.1/src
+
+make
+
+strip src/qt/bitcoin-qt.exe
+
+for unit tests
+#--with-boost-unit-test-framework=mgw73-mt-s-1_55 \
+and remove "--disable-tests \

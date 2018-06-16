@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=FLX
+Comment=FLX P2P Cryptocurrency
+Exec=flexinodes-qt %u
+Terminal=false
+Type=Application
+Icon=flexinodes128
+MimeType=x-scheme-handler/flexinodes;
+Categories=Office;Finance;
+Name[en_US]=flexinodes-qt.desktop
