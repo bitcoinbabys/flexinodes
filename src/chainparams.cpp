@@ -108,12 +108,14 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 1 * 60;
         nTargetSpacing = 2 * 60;
-        nLastPOWBlock = 4;
-        nMaturity = 50;
+        nLastPOWBlock = 0;
+        nMaturity = 10;
         nMasternodeCountDrift = 20;
 	    nMasternodeColleteralLimxDev = 4000; //Params().MasternodeColleteralLimxDev()
         nModifierUpdateBlock = 1; // we use the version 2 for dmd
         nMaxMoneyOut = 1000000000 * COIN;
+        nMinMnCollateral = 10000 * COIN;
+        nMaxMnCollateral = 2600000 * COIN;
 
         const char* pszTimestamp = "NyTimes.com 15th June 2018 - U.S. Imposes China Tariffs, Escalating Trade Fight";
         CMutableTransaction txNew;

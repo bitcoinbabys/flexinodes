@@ -33,7 +33,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     }
 
 	// Proof of Stake
-    if (pindexLast->nHeight > Params().LAST_POW_BLOCK()) {
+    if (pindexLast->IsProofOfStake()) {
         uint256 bnTargetLimit = (~uint256(0) >> 20);
 		
         int64_t nTargetSpacing = Params().TargetSpacing();
@@ -55,7 +55,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
         bnNew /= ((nInterval + 1) * nTargetSpacing);
 		
-		if (pindexLast->nHeight == Params().LAST_POW_BLOCK() || pindexLast->nHeight <= Params().LAST_POW_BLOCK() +2 ) bnNew = bnTargetLimit;
+		if (pindexLast->IsProofOfWork() ) bnNew = bnTargetLimit;
         if (bnNew <= 0 || bnNew > bnTargetLimit)
             bnNew = bnTargetLimit;
         return bnNew.GetCompact();

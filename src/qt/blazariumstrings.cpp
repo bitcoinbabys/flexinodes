@@ -205,10 +205,10 @@ static const char UNUSED* flexinodes_strings[] = {
     QT_TRANSLATE_NOOP("flexinodes-core", ""
                                    "You must specify a masternodeprivkey in the configuration. Please see "
                                    "documentation for help."),
-    QT_TRANSLATE_NOOP("flexinodes-core", "(22788 could be used only on mainnet)"),
+    QT_TRANSLATE_NOOP("flexinodes-core", "(25793 could be used only on mainnet)"),
     QT_TRANSLATE_NOOP("flexinodes-core", "(default: %s)"),
     QT_TRANSLATE_NOOP("flexinodes-core", "(default: 1)"),
-    QT_TRANSLATE_NOOP("flexinodes-core", "(must be 22788 for mainnet)"),
+    QT_TRANSLATE_NOOP("flexinodes-core", "(must be 25793 for mainnet)"),
     QT_TRANSLATE_NOOP("flexinodes-core", "<category> can be:\n"),
     QT_TRANSLATE_NOOP("flexinodes-core", "Accept command line and JSON-RPC commands"),
     QT_TRANSLATE_NOOP("flexinodes-core", "Accept connections from outside (default: 1 if no -proxy or -connect)"),
