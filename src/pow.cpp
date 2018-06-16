@@ -15,7 +15,7 @@
 #include <math.h>
 
 
-unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
+unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, bool fProofOfStake)
 {
     /* current difficulty formula, flexinodes - DarkGravity v3, written by Evan Duffield - evan@dashpay.io */
     const CBlockIndex* BlockLastSolved = pindexLast;
@@ -33,7 +33,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     }
 
 	// Proof of Stake
-    if (pindexLast->IsProofOfStake()) {
+    if (fProofOfStake) {
         uint256 bnTargetLimit = (~uint256(0) >> 20);
 
         int64_t nTargetSpacing = Params().TargetSpacing();

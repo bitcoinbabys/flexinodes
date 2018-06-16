@@ -17,6 +17,7 @@
 #include "chain.h"
 #include "chainparams.h"
 #include "coins.h"
+
 #include "net.h"
 #include "pow.h"
 #include "primitives/block.h"
@@ -231,7 +232,7 @@ bool DisconnectBlocksAndReprocess(int blocks);
 
 // ***TODO***
 double ConvertBitsToDouble(unsigned int nBits);
-int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount = 0);
+int64_t GetMasternodePayment(int nHeight, int64_t blockValue, CAmount mnCollateral);
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, bool fProofOfStake);
 
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL);
