@@ -8,6 +8,7 @@
 #include "activemasternode.h"
 #include "addrman.h"
 #include "masternode.h"
+#include "main.h"
 #include "Darksend.h"
 #include "spork.h"
 #include "util.h"
@@ -961,10 +962,10 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         //  - this is checked later by .check() in many places and by ThreadCheckDarKsendPool()
 
         CValidationState state;
-        CMutableTransaction tx = CMutableTransaction();
-        CTxOut vout = CTxOut(999.99 * COIN, DarKsendPool.collateralPubKey);
-        tx.vin.push_back(vin);
-        tx.vout.push_back(vout);
+        uint256 hashBlock = 0;
+        CTransaction tx = CTransaction();
+        GetTransaction(vin.prevout.hash, tx, hashBlock, true);
+        int64_t checkValue = tx.vout[vin.prevout.n].nValue;
 
         bool fAcceptable = false;
         {
@@ -1010,6 +1011,10 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
             mn.protocolVersion = protocolVersion;
             // fake ping
             mn.lastPing = CMasternodePing(vin);
+            if (checkValue != 0) {
+                mn.collateral = checkValue;
+            }
+
             mn.Check(true);
             // add v11 masternodes, v12 should be added by mnb only
             if (protocolVersion < GETHEADERS_VERSION) {

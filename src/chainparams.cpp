@@ -59,10 +59,10 @@ static Checkpoints::MapCheckpoints mapCheckpoints =
 ;
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
-	1526511996, // * UNIX timestamp of last checkpoint block
-    0,    // * total number of transactions between genesis and last checkpoint
+    1529089192, // * UNIX timestamp of last checkpoint block
+    1,    // * total number of transactions between genesis and last checkpoint
                 //   (the tx=... number in the SetBestChain debug.log lines)
-    1200        // * estimated number of transactions per day after checkpoint
+    720        // * estimated number of transactions per day after checkpoint
 };
 
 static Checkpoints::MapCheckpoints mapCheckpointsTestnet =
@@ -172,7 +172,7 @@ public:
 
         fRequireRPCPassword = true;
         fMiningRequiresPeers = false;
-        fAllowMinDifficultyBlocks = false;
+        fAllowMinDifficultyBlocks = true;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;

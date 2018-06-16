@@ -3535,10 +3535,10 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
     if (!CheckBlock(block, state, fCheckPOW, fCheckMerkleRoot))
         return false;
 	///AAAA
-	if( block.IsProofOfStake() ){
+
     if (!ContextualCheckBlock(block, state, pindexPrev))
         return false;
-	}
+
     if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
         return false;
     assert(state.IsValid());
@@ -5790,6 +5790,14 @@ std::string CBlockFileInfo::ToString() const
     return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, DateTimeStrFormat("%Y-%m-%d", nTimeFirst), DateTimeStrFormat("%Y-%m-%d", nTimeLast));
 }
 
+CTxOut GetPrevOut(const COutPoint& out)
+{
+    CTransaction tx;
+    uint256 hashBlock;
+    if (GetTransaction(out.hash, tx, hashBlock, true))
+        return tx.vout[out.n];
+    return CTxOut();
+}
 
 class CMainCleanup
 {

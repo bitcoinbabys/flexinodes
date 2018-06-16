@@ -6,6 +6,7 @@
 
 #include "masternode.h"
 #include "addrman.h"
+#include "main.h"
 #include "masternodeman.h"
 #include "Darksend.h"
 #include "sync.h"
@@ -81,6 +82,7 @@ CMasternode::CMasternode()
     lastTimeChecked = 0;
     nLastDsee = 0;  // temporary, do not save. Remove after migration to v12
     nLastDseep = 0; // temporary, do not save. Remove after migration to v12
+    collateral = 0;
 }
 
 CMasternode::CMasternode(const CMasternode& other)
@@ -106,6 +108,7 @@ CMasternode::CMasternode(const CMasternode& other)
     lastTimeChecked = 0;
     nLastDsee = other.nLastDsee;   // temporary, do not save. Remove after migration to v12
     nLastDseep = other.nLastDseep; // temporary, do not save. Remove after migration to v12
+    collateral = other.collateral;
 }
 
 CMasternode::CMasternode(const CMasternodeBroadcast& mnb)
@@ -131,6 +134,7 @@ CMasternode::CMasternode(const CMasternodeBroadcast& mnb)
     lastTimeChecked = 0;
     nLastDsee = 0;  // temporary, do not save. Remove after migration to v12
     nLastDseep = 0; // temporary, do not save. Remove after migration to v12
+    collateral = GetPrevOut(vin.prevout).nValue;
 }
 
 //
@@ -212,9 +216,10 @@ void CMasternode::Check(bool forceCheck)
     if (!unitTest) {
         CValidationState state;
         CMutableTransaction tx = CMutableTransaction();
-        CTxOut vout = CTxOut(999.99 * COIN, DarKsendPool.collateralPubKey);
+        CTxOut vout = CTxOut(0 * COIN, DarKsendPool.collateralPubKey);
         tx.vin.push_back(vin);
         tx.vout.push_back(vout);
+        collateral = GetPrevOut(vin.prevout).nValue;
 
         {
             TRY_LOCK(cs_main, lockMain);
@@ -516,10 +521,11 @@ bool CMasternodeBroadcast::CheckAndUpdate(int& nDos)
         return false;
     }
 
+    /*
     if (Params().NetworkID() == CBaseChainParams::MAIN) {
-        if (addr.GetPort() != 22788) return false;
-    } else if (addr.GetPort() == 22788)
-        return false;
+        if (addr.GetPort() != 25793) return false;
+    } else if (addr.GetPort() == 25793)
+        return false;*/
 
     //search existing Masternode list, this is where we update existing Masternodes with new mnb broadcasts
     CMasternode* pmn = mnodeman.Find(vin);
@@ -573,7 +579,7 @@ bool CMasternodeBroadcast::CheckInputsAndAdd(int& nDoS)
 
     CValidationState state;
     CMutableTransaction tx = CMutableTransaction();
-    CTxOut vout = CTxOut(999.99 * COIN, DarKsendPool.collateralPubKey);
+    CTxOut vout = CTxOut(tx.vout[vin.prevout.n].nValue * COIN, DarKsendPool.collateralPubKey);
     tx.vin.push_back(vin);
     tx.vout.push_back(vout);
 

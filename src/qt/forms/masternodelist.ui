@@ -146,6 +146,11 @@
              </column>
              <column>
               <property name="text">
+               <string>Collateral</string>
+              </property>
+			 </column> 
+             <column>
+              <property name="text">
                <string>Address</string>
               </property>
              </column>
@@ -309,6 +314,11 @@
              <string>Address</string>
             </property>
            </column>
+           <column>
+            <property name="text">
+             <string>Collateral</string>
+            </property>
+           </column>           
            <column>
             <property name="text">
              <string>Protocol</string>

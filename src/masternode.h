@@ -143,6 +143,7 @@ public:
     int nScanningErrorCount;
     int nLastScanningErrorBlockHeight;
     CMasternodePing lastPing;
+    CAmount collateral;
 
     int64_t nLastDsee;  // temporary, do not save. Remove after migration to v12
     int64_t nLastDseep; // temporary, do not save. Remove after migration to v12
@@ -175,6 +176,7 @@ public:
         swap(first.nLastDsq, second.nLastDsq);
         swap(first.nScanningErrorCount, second.nScanningErrorCount);
         swap(first.nLastScanningErrorBlockHeight, second.nLastScanningErrorBlockHeight);
+        swap(first.collateral, second.collateral);
     }
 
     CMasternode& operator=(CMasternode from)
@@ -283,6 +285,10 @@ public:
 
     int64_t GetLastPaid();
     bool IsValidNetAddr();
+
+    void UpdateCollateral(CAmount newCollateral) {
+        collateral = newCollateral;
+    }
 };
 
 
