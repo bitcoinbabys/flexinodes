@@ -579,7 +579,7 @@ bool CMasternodeBroadcast::CheckInputsAndAdd(int& nDoS)
 
     CValidationState state;
     CMutableTransaction tx = CMutableTransaction();
-    CTxOut vout = CTxOut(tx.vout[vin.prevout.n].nValue * COIN, DarKsendPool.collateralPubKey);
+    CTxOut vout = CTxOut(GetPrevOut(vin.prevout).nValue, DarKsendPool.collateralPubKey);
     tx.vin.push_back(vin);
     tx.vout.push_back(vout);
 
