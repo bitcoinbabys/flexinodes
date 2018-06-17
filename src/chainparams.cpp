@@ -113,7 +113,7 @@ public:
         nMasternodeCountDrift = 20;
 	    nMasternodeColleteralLimxDev = 4000; //Params().MasternodeColleteralLimxDev()
         nModifierUpdateBlock = 1; // we use the version 2 for dmd
-        nMaxMoneyOut = 1000000000 * COIN;
+        nMaxMoneyOut = 10000000000 * COIN;
         nMinMnCollateral = 10000 * COIN;
         nMaxMnCollateral = 2600000 * COIN;
 
@@ -219,7 +219,7 @@ public:
         nSubsidyHalvingInterval = 262800;
         nMaturity = 15;
         nModifierUpdateBlock = 51197; //approx Mon, 30 Apr 2018 04:00:00 GMT
-        nMaxMoneyOut = 90000000 * COIN;
+        nMaxMoneyOut = 10000000000 * COIN;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1529089192;

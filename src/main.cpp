@@ -1621,14 +1621,14 @@ double ConvertBitsToDouble(unsigned int nBits)
 int64_t GetBlockValue(int nHeight)
 {
 
-	if (nHeight == 1) return 30000000 * COIN;
+	if (nHeight == 1) return 200000000 * COIN;
 
 	int64_t nSubsidy = 0;
 
 	if(nHeight+1 <= 21900) {
-		nSubsidy = 10  * COIN;
+		nSubsidy = 4  * COIN;
 	} else {
-	    nSubsidy = 5 * COIN;
+	    nSubsidy = 2 * COIN;
 	    nSubsidy >>= (nHeight / Params().SubsidyHalvingInterval());
 	}
 
@@ -1638,18 +1638,7 @@ int64_t GetBlockValue(int nHeight)
 
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue, CAmount mnCollateral)
 {
-
-	int64_t ret = 0.75;
-
-	if (nHeight > 1 && nHeight <= 1000000) {
-		ret = blockValue * 0.55;
-	} else if (nHeight > 1000000) {
-		ret = blockValue * 0.75;
-	}
-
-	if (nHeight+1 >= 36) {
-	    ret = blockValue * (mnCollateral / 10000 / COIN);
-	}
+	int64_t ret = blockValue * (mnCollateral / 10000 / COIN);
 
 	return ret;
 }
