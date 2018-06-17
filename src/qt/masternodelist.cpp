@@ -28,7 +28,7 @@ MasternodeList::MasternodeList(QWidget* parent) : QWidget(parent),
     ui->startButton->setEnabled(false);
 
     int columnAliasWidth = 100;
-    int columnCollateralWidth = 200;
+    int columnCollateralWidth = 100;
     int columnAddressWidth = 200;
     int columnProtocolWidth = 60;
     int columnStatusWidth = 80;
