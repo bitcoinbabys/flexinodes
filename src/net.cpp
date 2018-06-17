@@ -1112,15 +1112,24 @@ void ThreadDNSAddressSeed()
         } else {
             vector<CNetAddr> vIPs;
             vector<CAddress> vAdd;
-            if (LookupHost(seed.host.c_str(), vIPs)) {
+
+            int port = 0;
+            string host = seed.host;
+            SplitHostPort(host, port, host);
+
+            if (LookupHost(host.c_str(), vIPs)) {
                 BOOST_FOREACH (CNetAddr& ip, vIPs) {
                     int nOneDay = 24 * 3600;
-                    CAddress addr = CAddress(CService(ip, Params().GetDefaultPort()));
+                    //ZERO24X: Modified these lines to support ports in seednodes
+                    CAddress addr = CAddress(CService(ip, port));
                     addr.nTime = GetTime() - 3 * nOneDay - GetRand(4 * nOneDay); // use a random age between 3 and 7 days old
                     vAdd.push_back(addr);
+
+                    OpenNetworkConnection(addr, NULL, addr.ToStringIPPort().c_str());
                     found++;
                 }
             }
+
             addrman.Add(vAdd, CNetAddr(seed.name, true));
         }
     }
@@ -1239,8 +1248,8 @@ void ThreadOpenConnections()
                 continue;
 
             // do not allow non-default ports, unless after 50 invalid addresses selected already
-            if (addr.GetPort() != Params().GetDefaultPort() && nTries < 50)
-                continue;
+            //if (addr.GetPort() != Params().GetDefaultPort() && nTries < 50)
+            //    continue;
 
             addrConnect = addr;
             break;

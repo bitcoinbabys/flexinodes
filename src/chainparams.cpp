@@ -155,8 +155,9 @@ public:
         assert(hashGenesisBlock == uint256("0x000002bfed5840e18d870d02772826f8cf615718cc7e326d4fc202113131a57e"));
         assert(genesis.hashMerkleRoot == uint256("0x6b3f9f9051ee3f3dcde8fb34ab5abf9c94cf9eadf3a3cd848d123451f4b704db"));
         
-        vSeeds.push_back(CDNSSeedData("flexinodes-seednode-1.dynu.net", "flexinodes-seednode-1.dynu.net"));
-        vSeeds.push_back(CDNSSeedData("flexinodes-seednode-2.dynu.net", "flexinodes-seednode-2.dynu.net"));
+        vSeeds.push_back(CDNSSeedData("flexinodes-seednode-1.dynu.net:25793", "flexinodes-seednode-1.dynu.net:25793"));
+        vSeeds.push_back(CDNSSeedData("flexinodes-seednode-2.dynu.net:25794", "flexinodes-seednode-2.dynu.net:25794"));
+        vSeeds.push_back(CDNSSeedData("flexinodes-seednode-3.dynu.net:25795", "flexinodes-seednode-3.dynu.net:25795"));
 
         //vFixedSeeds.clear();
         //vSeeds.clear();
