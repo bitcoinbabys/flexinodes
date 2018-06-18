@@ -63,17 +63,20 @@ class CMasternodePayee
 public:
     CScript scriptPubKey;
     int nVotes;
+    CTxIn vin;
 
     CMasternodePayee()
     {
         scriptPubKey = CScript();
         nVotes = 0;
+        vin = CTxIn();
     }
 
-    CMasternodePayee(CScript payee, int nVotesIn)
+    CMasternodePayee(CScript payee, int nVotesIn, CTxIn vinMasternode)
     {
         scriptPubKey = payee;
         nVotes = nVotesIn;
+        vin = vinMasternode;
     }
 
     ADD_SERIALIZE_METHODS;
@@ -81,6 +84,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
     {
+        READWRITE(vin);
         READWRITE(scriptPubKey);
         READWRITE(nVotes);
     }
@@ -104,7 +108,7 @@ public:
         vecPayments.clear();
     }
 
-    void AddPayee(CScript payeeIn, int nIncrement)
+    void AddPayee(CScript payeeIn, int nIncrement, CTxIn vinMasternode)
     {
         LOCK(cs_vecPayments);
 
@@ -115,11 +119,11 @@ public:
             }
         }
 
-        CMasternodePayee c(payeeIn, nIncrement);
+        CMasternodePayee c(payeeIn, nIncrement, vinMasternode);
         vecPayments.push_back(c);
     }
 
-    bool GetPayee(CScript& payee)
+    bool GetPayeeAndVin(CScript& payee, CTxIn &vin)
     {
         LOCK(cs_vecPayments);
 
@@ -128,6 +132,7 @@ public:
             if (p.nVotes > nVotes) {
                 payee = p.scriptPubKey;
                 nVotes = p.nVotes;
+                vin = p.vin;
             }
         }
 
@@ -261,7 +266,7 @@ public:
     void CleanPaymentList();
     int LastPayment(CMasternode& mn);
 
-    bool GetBlockPayee(int nBlockHeight, CScript& payee);
+    bool GetBlockPayee(int nBlockHeight, CScript& payee, CTxIn& vin);
     bool IsTransactionValid(const CTransaction& txNew, int nBlockHeight);
     bool IsScheduled(CMasternode& mn, int nNotBlockHeight);
 

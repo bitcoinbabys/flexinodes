@@ -286,13 +286,18 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
 
     bool hasPayment = true;
     CScript payee;
+    CTxIn vin;
     CMasternode* winningNode = NULL;
+    CAmount collateral = 0;
 
     //spork
-    if (!masternodePayments.GetBlockPayee(pindexPrev->nHeight + 1, payee)) {
+    if (!masternodePayments.GetBlockPayee(pindexPrev->nHeight + 1, payee, vin)) {
         //no masternode detected
         winningNode = mnodeman.GetCurrentMasterNode(1);
         if (winningNode) {
+            if (fDebug) {
+                LogPrintf("CreateNewBlock: Detected winningNode\n");
+            }
             payee = GetScriptForDestination(winningNode->pubKeyCollateralAddress.GetID());
         } else {
             LogPrintf("CreateNewBlock: Failed to detect masternode to pay\n");
@@ -303,12 +308,13 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     CAmount blockValue = GetBlockValue(pindexPrev->nHeight +1 );
 
     if (hasPayment) {
-        CAmount collateral = 0;
+
         if (winningNode) {
             collateral = winningNode->collateral;
         } else {
-            collateral = Params().MinMnCollteral();
+            collateral = GetPrevOut(vin.prevout).nValue;
         }
+
         CAmount masternodePayment = GetMasternodePayment(pindexPrev->nHeight +1, blockValue, collateral);
         if (fProofOfStake) {
             /**For Proof Of Stake vout[0] must be null
@@ -326,16 +332,16 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
             txNew.vout.resize(2);
             txNew.vout[1].scriptPubKey = payee;
             txNew.vout[1].nValue = masternodePayment;
-			LogPrintf("CreateNewBlock: masternode to pay value %u\n", masternodePayment);
+			LogPrintf("CreateNewBlock: masternode to pay value %u\n", FormatMoney(CAmount(masternodePayment)));
             txNew.vout[0].nValue = blockValue;
-			LogPrintf("CreateNewBlock: blockvalue to pay value %u\n", blockValue);
+			LogPrintf("CreateNewBlock: blockvalue to pay value %u\n", FormatMoney(CAmount(blockValue)));
         }
 
         CTxDestination address1;
         ExtractDestination(payee, address1);
         CBitcoinAddress address2(address1);
 
-        LogPrintf("Masternode payment of %s to %s\n", FormatMoney(masternodePayment).c_str(), address2.ToString().c_str());
+        LogPrintf("Masternode (collateral=%s) payment of %s to %s\n", FormatMoney(collateral), FormatMoney(masternodePayment).c_str(), address2.ToString().c_str());
     }
 }
 
@@ -451,14 +457,15 @@ bool CMasternodePaymentWinner::Sign(CKey& keyMasternode, CPubKey& pubKeyMasterno
     return true;
 }
 
-bool CMasternodePayments::GetBlockPayee(int nBlockHeight, CScript& payee)
+bool CMasternodePayments::GetBlockPayee(int nBlockHeight, CScript& payee, CTxIn& vin)
 {
     if (mapMasternodeBlocks.count(nBlockHeight)) {
-        return mapMasternodeBlocks[nBlockHeight].GetPayee(payee);
+        return mapMasternodeBlocks[nBlockHeight].GetPayeeAndVin(payee, vin);
     }
 
     return false;
 }
+
 
 // Is this masternode scheduled to get paid soon?
 // -- Only look ahead up to 8 blocks to allow for propagation of the latest 2 winners
@@ -477,10 +484,11 @@ bool CMasternodePayments::IsScheduled(CMasternode& mn, int nNotBlockHeight)
     mnpayee = GetScriptForDestination(mn.pubKeyCollateralAddress.GetID());
 
     CScript payee;
+    CTxIn vin;
     for (int64_t h = nHeight; h <= nHeight + 8; h++) {
         if (h == nNotBlockHeight) continue;
         if (mapMasternodeBlocks.count(h)) {
-            if (mapMasternodeBlocks[h].GetPayee(payee)) {
+            if (mapMasternodeBlocks[h].GetPayeeAndVin(payee, vin)) {
                 if (mnpayee == payee) {
                     return true;
                 }
@@ -513,7 +521,7 @@ bool CMasternodePayments::AddWinningMasternode(CMasternodePaymentWinner& winnerI
         }
     }
 
-    mapMasternodeBlocks[winnerIn.nBlockHeight].AddPayee(winnerIn.payee, 1);
+    mapMasternodeBlocks[winnerIn.nBlockHeight].AddPayee(winnerIn.payee, 1, winnerIn.vinMasternode);
 
     return true;
 }
@@ -527,6 +535,8 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
     std::string strPayeesPossible = "";
 
     CAmount nReward = GetBlockValue(nBlockHeight);
+    CAmount collateral = Params().MinMnCollteral();
+    CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, collateral);
 
     if (IsSporkActive(SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT)) {
         // Get a stable number of masternodes by ignoring newly activated (< 8000 sec old) masternodes
@@ -539,24 +549,47 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         nMasternode_Drift_Count = mnodeman.size() + Params().MasternodeCountDrift();
     }
 
-	CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, Params().MinMnCollteral());
-
     //require at least 6 signatures
-    BOOST_FOREACH (CMasternodePayee& payee, vecPayments)
-        if (payee.nVotes >= nMaxSignatures && payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED)
+    BOOST_FOREACH (CMasternodePayee& payee, vecPayments) {
+          if (payee.nVotes >= nMaxSignatures && payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED)
             nMaxSignatures = payee.nVotes;
+    }
+
+    if(fDebug) {
+        LogPrintf("%s - nMaxSignatures=%i, MNPAYMENTS_SIGNATURES_REQUIRED=%i \n",__func__, nMaxSignatures, MNPAYMENTS_SIGNATURES_REQUIRED);
+    }
 
     // if we don't have at least 6 signatures on a payee, approve whichever is the longest chain
     if (nMaxSignatures < MNPAYMENTS_SIGNATURES_REQUIRED) return true;
 
-    BOOST_FOREACH (CMasternodePayee& payee, vecPayments) {
+    BOOST_FOREACH (CMasternodePayee& payee, vecPayments)
+    {
+        collateral = GetPrevOut(payee.vin.prevout).nValue;
+        requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, collateral);
         bool found = false;
-        BOOST_FOREACH (CTxOut out, txNew.vout) {
-            if (payee.scriptPubKey == out.scriptPubKey) {
-                if(out.nValue >= requiredMasternodePayment)
+
+        BOOST_FOREACH (CTxOut out, txNew.vout)
+        {
+            if (payee.scriptPubKey == out.scriptPubKey)
+            {
+
+                LogPrintf("%s: out.nValue=%s, requiredMasternodePayment=%s, collateral=%s, nReward=%s\n",
+                        __func__, FormatMoney(out.nValue), FormatMoney(requiredMasternodePayment),FormatMoney(collateral),FormatMoney(nReward));
+
+                if (out.nValue == requiredMasternodePayment)
+                {
                     found = true;
+                    LogPrintf("Masternode payment must be %s (collateral %s) .\n",
+                            FormatMoney(requiredMasternodePayment).c_str(), FormatMoney(collateral).c_str());
+                }
                 else
-                    LogPrintf("Masternode payment is out of drift range. Paid=%s Min=%s\n", FormatMoney(out.nValue).c_str(), FormatMoney(requiredMasternodePayment).c_str());
+                {
+                    LogPrintf(
+                            "Masternode payment is out of range - Paid=%s Expected=%s\n",
+                            FormatMoney(out.nValue).c_str(),
+                            FormatMoney(requiredMasternodePayment).c_str());
+                }
+
             }
         }
 
@@ -575,7 +608,8 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         }
     }
 
-    LogPrintf("CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
+    LogPrintf("CMasternodePayments::IsTransactionValid - Missing required payment of %s (collateral %s) to %s\n",
+            FormatMoney(requiredMasternodePayment).c_str(),FormatMoney(collateral).c_str(), strPayeesPossible.c_str());
     return false;
 }
 
