@@ -296,7 +296,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
         winningNode = mnodeman.GetCurrentMasterNode(1);
         if (winningNode) {
             if (fDebug) {
-                LogPrintf("CreateNewBlock: Detected winningNode\n");
+                LogPrintf("CreateNewBlock: Detected winningNode %s\n",winningNode->vin.ToString());
             }
             payee = GetScriptForDestination(winningNode->pubKeyCollateralAddress.GetID());
         } else {
@@ -310,10 +310,10 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     if (hasPayment) {
 
         if (winningNode) {
-            collateral = winningNode->collateral;
-        } else {
-            collateral = GetPrevOut(vin.prevout).nValue;
+            vin = winningNode->vin;
         }
+
+        collateral = GetPrevOut(vin.prevout).nValue;
 
         CAmount masternodePayment = GetMasternodePayment(pindexPrev->nHeight +1, blockValue, collateral);
         if (fProofOfStake) {
@@ -341,7 +341,8 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
         ExtractDestination(payee, address1);
         CBitcoinAddress address2(address1);
 
-        LogPrintf("Masternode (collateral=%s) payment of %s to %s\n", FormatMoney(collateral), FormatMoney(masternodePayment).c_str(), address2.ToString().c_str());
+        LogPrintf("Masternode (collateral=%s,vin=%s) payment of %s to %s\n", FormatMoney(collateral),vin.ToString(),
+                FormatMoney(masternodePayment).c_str(), address2.ToString().c_str());
     }
 }
 
@@ -460,7 +461,7 @@ bool CMasternodePaymentWinner::Sign(CKey& keyMasternode, CPubKey& pubKeyMasterno
 bool CMasternodePayments::GetBlockPayee(int nBlockHeight, CScript& payee, CTxIn& vin)
 {
     if (mapMasternodeBlocks.count(nBlockHeight)) {
-        return mapMasternodeBlocks[nBlockHeight].GetPayeeAndVin(payee, vin);
+        return mapMasternodeBlocks[nBlockHeight].GetPayeeAndVin(&payee, vin);
     }
 
     return false;
