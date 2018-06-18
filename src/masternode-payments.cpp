@@ -461,7 +461,7 @@ bool CMasternodePaymentWinner::Sign(CKey& keyMasternode, CPubKey& pubKeyMasterno
 bool CMasternodePayments::GetBlockPayee(int nBlockHeight, CScript& payee, CTxIn& vin)
 {
     if (mapMasternodeBlocks.count(nBlockHeight)) {
-        return mapMasternodeBlocks[nBlockHeight].GetPayeeAndVin(&payee, vin);
+        return mapMasternodeBlocks[nBlockHeight].GetPayeeAndVin(payee, vin);
     }
 
     return false;
