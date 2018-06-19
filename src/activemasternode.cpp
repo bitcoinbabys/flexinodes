@@ -474,7 +474,7 @@ vector<COutput> CActiveMasternode::SelectCoinsMasternode()
     // Filter
     BOOST_FOREACH (const COutput& out, vCoins) {
         CAmount mnCollateral = out.tx->vout[out.i].nValue;
-        bool mnCollateralValid = (mnCollateral >= Params().MinMnCollteral() && mnCollateral <= Params().MaxMnCollteral());
+        bool mnCollateralValid = (mnCollateral >= Params().MinMnCollateral() && mnCollateral <= Params().MaxMnCollateral());
         if (mnCollateralValid) { //flexible collateral
             filteredCoins.push_back(out);
         }

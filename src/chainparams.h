@@ -95,9 +95,9 @@ public:
     std::string DarksendPoolDummyAddress() const { return strDarksendPoolDummyAddress; }
     int64_t StartMasternodePayments() const { return nStartMasternodePayments; }
     CBaseChainParams::Network NetworkID() const { return networkID; }
-    CAmount MinMnCollteral() const {return nMinMnCollateral; }
-    CAmount MaxMnCollteral() const {return nMaxMnCollateral; }
+    CAmount MinMnCollateral() const {return nMinMnCollateral; }
 
+    CAmount MaxMnCollateral() const {return nMaxMnCollateral; }
 protected:
     CChainParams() {}
 
