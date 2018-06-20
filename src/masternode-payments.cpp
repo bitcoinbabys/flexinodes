@@ -607,7 +607,7 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         CMasternode* winningNode = mnodeman.Find(payee.scriptPubKey);
 
         if (winningNode) {
-            LogPrintf("%s: winningNode found by mnodeman:" , __func__, CBitcoinAddress(winningNode->pubKeyCollateralAddress.GetID()).ToString());
+            LogPrintf("%s: winningNode found by mnodeman: %s" , __func__, CBitcoinAddress(winningNode->pubKeyCollateralAddress.GetID()).ToString());
             collateral = GetPrevOut(winningNode->vin.prevout).nValue;
         } else {
             LogPrintf("%s: winningNode NOT found by mnodeman, using MinMnCollateral",__func__);
