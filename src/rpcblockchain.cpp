@@ -30,7 +30,7 @@ double GetDifficulty(const CBlockIndex* blockindex)
         if (chainActive.Tip() == NULL)
             return 1.0;
         else
-            blockindex = chainActive.Tip();
+            blockindex = GetLastBlockIndex(chainActive.Tip(), false);
     }
 
     int nShift = (blockindex->nBits >> 24) & 0xff;
@@ -133,16 +133,19 @@ Value getbestblockhash(const Array& params, bool fHelp)
 
 Value getdifficulty(const Array& params, bool fHelp)
 {
+    
+
     if (fHelp || params.size() != 0)
         throw runtime_error(
             "getdifficulty\n"
-            "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
-            "\nResult:\n"
-            "n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getdifficulty", "") + HelpExampleRpc("getdifficulty", ""));
+            "Returns the difficulty as a multiple of the minimum difficulty.");
 
-    return GetDifficulty();
+    CBlockIndex* pindexBest = chainActive.Tip();
+    Object obj;
+    obj.push_back(Pair("proof-of-work",        GetDifficulty()));
+    obj.push_back(Pair("proof-of-stake",       GetDifficulty(GetLastBlockIndex(pindexBest, true))));
+    obj.push_back(Pair("search-interval",      (int)nLastCoinStakeSearchInterval));
+    return obj;
 }
 
 
