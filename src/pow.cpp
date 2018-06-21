@@ -28,10 +28,13 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     const CBlockIndex* BlockLastSolved;
     const CBlockIndex* BlockReading;
 
-    if (pindexLast && pindexLast->nHeight >= 810) {
+    if (pindexLast && pindexLast->nHeight >= 810)
+    {
         BlockLastSolved = GetLastBlockIndex(pindexLast, fProofOfStake);
         BlockReading = GetLastBlockIndex(pindexLast, fProofOfStake);
-    } else {
+    }
+    else
+    {
         BlockLastSolved = pindexLast;
         BlockReading = pindexLast;
     }
@@ -44,20 +47,24 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     uint256 PastDifficultyAverage;
     uint256 PastDifficultyAveragePrev;
 
-    if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || BlockLastSolved->nHeight < PastBlocksMin) {
+    if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0
+            || BlockLastSolved->nHeight < PastBlocksMin)
+    {
         return Params().ProofOfWorkLimit().GetCompact();
     }
 
-	// Proof of Stake
-    if (fProofOfStake) {
+    // Proof of Stake
+    if (fProofOfStake)
+    {
         uint256 bnTargetLimit = (~uint256(0) >> 20);
 
         int64_t nTargetSpacing = Params().TargetSpacing();
-        int64_t nTargetTimespan = Params().TargetTimespan()*40;
+        int64_t nTargetTimespan = Params().TargetTimespan() * 40;
 
         int64_t nActualSpacing = 0;
         if (pindexLast->nHeight != 0)
-            nActualSpacing = pindexLast->GetBlockTime() - pindexLast->pprev->GetBlockTime();
+            nActualSpacing = pindexLast->GetBlockTime()
+                    - pindexLast->pprev->GetBlockTime();
 
         if (nActualSpacing < 0)
             nActualSpacing = 1;
@@ -68,7 +75,8 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         bnNew.SetCompact(pindexLast->nBits);
 
         int64_t nInterval = nTargetTimespan / nTargetSpacing;
-        bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+        bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing
+                + nActualSpacing);
         bnNew /= ((nInterval + 1) * nTargetSpacing);
 
         if (bnNew <= 0 || bnNew > bnTargetLimit)
@@ -76,33 +84,84 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return bnNew.GetCompact();
     }
 
-	
-    for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
-        if (PastBlocksMax > 0 && i > PastBlocksMax) {
-            break;
-        }
-        CountBlocks++;
+    if (pindexLast && pindexLast->nHeight >= 1215)
+    {
+        uint256 bnTargetLimit = Params().ProofOfWorkLimit();
+        int nTargetSpacing = Params().TargetSpacing();
+        int nTargetTimespan= Params().TargetTimespan();
 
-        if (CountBlocks <= PastBlocksMin) {
-            if (CountBlocks == 1) {
-                PastDifficultyAverage.SetCompact(BlockReading->nBits);
-            } else {
-                PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (uint256().SetCompact(BlockReading->nBits))) / (CountBlocks + 1);
+        const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
+        if (pindexPrev->pprev == NULL)
+            return bnTargetLimit.GetCompact(); // first block
+        const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
+        if (pindexPrevPrev->pprev == NULL)
+            return bnTargetLimit.GetCompact(); // second block
+
+        int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
+        if (nActualSpacing < 0)
+            nActualSpacing = nTargetSpacing;
+
+        // ppcoin: target change every block
+        // ppcoin: retarget with exponential moving toward target spacing
+        uint256 bnNew;
+        bnNew.SetCompact(pindexPrev->nBits);
+        int64_t nInterval = nTargetTimespan / nTargetSpacing;
+        bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+        bnNew /= ((nInterval + 1) * nTargetSpacing);
+
+        if (bnNew <= 0 || bnNew > bnTargetLimit)
+            bnNew = bnTargetLimit;
+
+        LogPrintf("GetNextWorkRequired RETARGET v2\n");
+        LogPrintf("nActualSpacing = %d\n", nActualSpacing);
+        LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
+
+        return bnNew.GetCompact();
+    }
+    else
+    {
+
+        for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++)
+        {
+            if (PastBlocksMax > 0 && i > PastBlocksMax)
+            {
+                break;
             }
-            PastDifficultyAveragePrev = PastDifficultyAverage;
-        }
+            CountBlocks++;
 
-        if (LastBlockTime > 0) {
-            int64_t Diff = (LastBlockTime - BlockReading->GetBlockTime());
-            nActualTimespan += Diff;
-        }
-        LastBlockTime = BlockReading->GetBlockTime();
+            if (CountBlocks <= PastBlocksMin)
+            {
+                if (CountBlocks == 1)
+                {
+                    PastDifficultyAverage.SetCompact(BlockReading->nBits);
+                }
+                else
+                {
+                    PastDifficultyAverage = ((PastDifficultyAveragePrev
+                            * CountBlocks)
+                            + (uint256().SetCompact(BlockReading->nBits)))
+                            / (CountBlocks + 1);
+                }
+                PastDifficultyAveragePrev = PastDifficultyAverage;
+            }
 
-        if (BlockReading->pprev == NULL) {
-            assert(BlockReading);
-            break;
+            if (LastBlockTime > 0)
+            {
+                int64_t Diff = (LastBlockTime - BlockReading->GetBlockTime());
+                nActualTimespan += Diff;
+            }
+            LastBlockTime = BlockReading->GetBlockTime();
+
+            if (BlockReading->pprev == NULL)
+            {
+                assert(BlockReading);
+                break;
+            }
+            BlockReading = BlockReading->pprev;
         }
-        BlockReading = BlockReading->pprev;
+    }
+    if (fDebug) {
+        LogPrintf("%s: BlockReading.nHeight=%i \n",__func__,  BlockReading->nHeight);
     }
 
     uint256 bnNew(PastDifficultyAverage);
@@ -118,11 +177,12 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     bnNew *= nActualTimespan;
     bnNew /= _nTargetTimespan;
 
-    if (bnNew > Params().ProofOfWorkLimit()) {
+    if (bnNew > Params().ProofOfWorkLimit())
+    {
         bnNew = Params().ProofOfWorkLimit();
     }
 
-	LogPrintf("GetNextWorkRequired RETARGET\n");
+    LogPrintf("GetNextWorkRequired RETARGET\n");
     LogPrintf("nActualTimespan = %d\n", nActualTimespan);
     LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
 
