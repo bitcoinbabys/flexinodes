@@ -14,12 +14,28 @@
 
 #include <math.h>
 
+// ppcoin: find last block index up to pindex
+const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
+{
+    while (pindex && pindex->pprev && (pindex->IsProofOfStake() != fProofOfStake))
+        pindex = pindex->pprev;
+    return pindex;
+}
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, bool fProofOfStake)
 {
     /* current difficulty formula, flexinodes - DarkGravity v3, written by Evan Duffield - evan@dashpay.io */
-    const CBlockIndex* BlockLastSolved = pindexLast;
-    const CBlockIndex* BlockReading = pindexLast;
+    const CBlockIndex* BlockLastSolved;
+    const CBlockIndex* BlockReading;
+
+    if (pindexLast && pindexLast->nHeight >= 810) {
+        BlockLastSolved = GetLastBlockIndex(pindexLast, fProofOfStake);
+        BlockReading = GetLastBlockIndex(pindexLast, fProofOfStake);
+    } else {
+        BlockLastSolved = pindexLast;
+        BlockReading = pindexLast;
+    }
+
     int64_t nActualTimespan = 0;
     int64_t LastBlockTime = 0;
     int64_t PastBlocksMin = 24;
@@ -61,8 +77,6 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     }
 
 	
-	
-	
     for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
         if (PastBlocksMax > 0 && i > PastBlocksMax) {
             break;
@@ -103,9 +117,6 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     // Retarget
     bnNew *= nActualTimespan;
     bnNew /= _nTargetTimespan;
-
-
-	//if (pindexLast->nHeight <= Params().LAST_POW_BLOCK()) bnNew = Params().ProofOfWorkLimit();
 
     if (bnNew > Params().ProofOfWorkLimit()) {
         bnNew = Params().ProofOfWorkLimit();
