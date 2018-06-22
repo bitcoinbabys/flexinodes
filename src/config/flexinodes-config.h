@@ -9,7 +9,7 @@
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* Version Build */
-#define CLIENT_VERSION_BUILD 1
+#define CLIENT_VERSION_BUILD 4
 
 /* Version is release */
 #define CLIENT_VERSION_IS_RELEASE true
@@ -291,7 +291,7 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "1.0.0"
 
-/* Define to necessary symbol if this constant uses a non-standard name on
+/* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
 /* #undef PTHREAD_CREATE_JOINABLE */
 
