@@ -113,6 +113,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
             bnNew = bnTargetLimit;
 
         LogPrintf("GetNextWorkRequired RETARGET v2\n");
+        LogPrintf("pindexPrev.nHeight = %i, pindexPrevPrev.nHeight = %i\n", pindexPrev->nHeight, pindexPrevPrev->nHeight);
         LogPrintf("nActualSpacing = %d\n", nActualSpacing);
         LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
 
