@@ -328,7 +328,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
         if (winningNode)
         {
             vin = winningNode->vin;
-            collateral = GetPrevOut(vin.prevout).nValue;
+            collateral = winningNode->collateral;
         }
         else
         {
@@ -607,10 +607,10 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         CMasternode* winningNode = mnodeman.Find(payee.scriptPubKey);
 
         if (winningNode) {
+            collateral = winningNode->collateral;
             LogPrintf("%s: winningNode found by mnodeman: %s" , __func__, CBitcoinAddress(winningNode->pubKeyCollateralAddress.GetID()).ToString());
-            collateral = GetPrevOut(winningNode->vin.prevout).nValue;
         } else {
-            LogPrintf("%s: winningNode NOT found by mnodeman, using MinMnCollateral",__func__);
+            LogPrintf("%s: winningNode NOT found by mnodeman, using MinMnCollateral", __func__);
         }
 
         requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, collateral);

@@ -134,7 +134,7 @@ CMasternode::CMasternode(const CMasternodeBroadcast& mnb)
     lastTimeChecked = 0;
     nLastDsee = 0;  // temporary, do not save. Remove after migration to v12
     nLastDseep = 0; // temporary, do not save. Remove after migration to v12
-    collateral = GetPrevOut(vin.prevout).nValue;
+    collateral = GetPrevOut(mnb.vin.prevout).nValue;
 }
 
 //
@@ -216,8 +216,7 @@ void CMasternode::Check(bool forceCheck)
     if (!unitTest) {
         CValidationState state;
         CMutableTransaction tx = CMutableTransaction();
-        collateral = GetPrevOut(vin.prevout).nValue;
-        CTxOut vout = CTxOut(collateral, DarKsendPool.collateralPubKey);
+        CTxOut vout = CTxOut(999.99 * COIN, DarKsendPool.collateralPubKey);
         tx.vin.push_back(vin);
         tx.vout.push_back(vout);
 
@@ -579,7 +578,7 @@ bool CMasternodeBroadcast::CheckInputsAndAdd(int& nDoS)
 
     CValidationState state;
     CMutableTransaction tx = CMutableTransaction();
-    CTxOut vout = CTxOut(GetPrevOut(vin.prevout).nValue, DarKsendPool.collateralPubKey);
+    CTxOut vout = CTxOut(999.99 * COIN, DarKsendPool.collateralPubKey);
     tx.vin.push_back(vin);
     tx.vout.push_back(vout);
 

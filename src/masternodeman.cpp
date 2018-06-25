@@ -962,10 +962,10 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         //  - this is checked later by .check() in many places and by ThreadCheckDarKsendPool()
 
         CValidationState state;
-        uint256 hashBlock = 0;
-        CTransaction tx = CTransaction();
-        GetTransaction(vin.prevout.hash, tx, hashBlock, true);
-        int64_t checkValue = tx.vout[vin.prevout.n].nValue;
+        CMutableTransaction tx = CMutableTransaction();
+        CTxOut vout = CTxOut(999.99 * COIN, DarKsendPool.collateralPubKey);
+        tx.vin.push_back(vin);
+        tx.vout.push_back(vout);
 
         bool fAcceptable = false;
         {
@@ -1011,11 +1011,11 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
             mn.protocolVersion = protocolVersion;
             // fake ping
             mn.lastPing = CMasternodePing(vin);
-            if (checkValue != 0) {
-                mn.collateral = checkValue;
-            }
-
+            int64_t mnCollateral = 0;
             mn.Check(true);
+            mnCollateral = tx2.vout[vin.prevout.n].nValue;
+            mn.collateral = mnCollateral;
+
             // add v11 masternodes, v12 should be added by mnb only
             if (protocolVersion < GETHEADERS_VERSION) {
                 LogPrint("masternode", "dsee - Accepted OLD Masternode entry %i %i\n", count, current);

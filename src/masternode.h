@@ -218,6 +218,7 @@ public:
         READWRITE(nLastDsq);
         READWRITE(nScanningErrorCount);
         READWRITE(nLastScanningErrorBlockHeight);
+        READWRITE(collateral);
     }
 
     int64_t SecondsSincePayment();
