@@ -70,7 +70,7 @@ Value GetNetworkHashPS(int height)
 
     }
     if (fDebug) {
-        LogPrintf("%s: blocksScanned=%i, blockScanLimit=%i", __func__, blocksScanned, blockScanLimit);
+        LogPrintf("%s: blocksScanned=%i, blockScanLimit=%i\n", __func__, blocksScanned, blockScanLimit);
     }
 
     // In case there's a situation where minTime == maxTime, we don't want a divide by zero exception.
