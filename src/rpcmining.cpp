@@ -49,6 +49,9 @@ Value GetNetworkHashPS(int height)
     CBlockIndex* pb0 = pb;
     int64_t minTime = pb0->GetBlockTime();
     int64_t maxTime = minTime;
+    int blocksScanned = 0;
+    int blockScanLimit = ( 24 * 60 * 60 ) / Params().TargetSpacing();
+
     while (pb0->pprev)
     {
         if (pb0->IsProofOfWork())
@@ -58,7 +61,16 @@ Value GetNetworkHashPS(int height)
             maxTime = std::max(time, maxTime);
         }
 
-        pb0 = pb0->pprev;
+        blocksScanned++;
+        if (blocksScanned >= blockScanLimit) {
+            break;
+        } else  {
+            pb0 = pb0->pprev;
+        }
+
+    }
+    if (fDebug) {
+        LogPrintf("%s: blocksScanned=%i, blockScanLimit=%i", __func__, blocksScanned, blockScanLimit);
     }
 
     // In case there's a situation where minTime == maxTime, we don't want a divide by zero exception.
