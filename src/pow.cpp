@@ -239,12 +239,12 @@ unsigned int GetNextWorkRequiredV3(const CBlockIndex* pindexLast, const CBlockHe
     if (bnNew <= 0 || bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
 
-    return bnNew.GetCompact();
-
     LogPrintf("GetNextWorkRequired RETARGET - Type: %s\n ", fProofOfStake ? "POS" : "POW");
     LogPrintf("pindexPrev.nHeight = %i, pindexPrevPrev.nHeight = %i\n", pindexPrev->nHeight, pindexPrevPrev->nHeight);
     LogPrintf("nActualSpacing = %d\n", nActualSpacing);
     LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
+
+    return bnNew.GetCompact();
 }
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
