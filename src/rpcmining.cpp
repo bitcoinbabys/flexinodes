@@ -62,11 +62,12 @@ Value GetNetworkHashPS(int height)
         }
 
         blocksScanned++;
-        if (blocksScanned >= blockScanLimit) {
+        if (blocksScanned >= blockScanLimit)
+        {
             break;
-        } else  {
-            pb0 = pb0->pprev;
         }
+
+        pb0 = pb0->pprev;
 
     }
     if (fDebug) {
