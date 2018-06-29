@@ -214,6 +214,10 @@ unsigned int GetNextWorkRequiredV3(const CBlockIndex* pindexLast, const CBlockHe
     int nTargetSpacing = Params().TargetSpacing();
     int nTargetTimespan= Params().TargetTimespan();
 
+    if (pindexLast->nHeight <= 7905) {
+        return bnTargetLimit.GetCompact();
+    }
+
     if (pindexLast == NULL)
         return bnTargetLimit.GetCompact(); // genesis block
 
