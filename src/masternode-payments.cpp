@@ -608,9 +608,14 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
 
         if (winningNode) {
             collateral = winningNode->collateral;
-            LogPrintf("%s: winningNode found by mnodeman: %s" , __func__, CBitcoinAddress(winningNode->pubKeyCollateralAddress.GetID()).ToString());
+            if (fDebug) {
+                LogPrintf("%s: winningNode found by mnodeman: %s" , __func__, CBitcoinAddress(winningNode->pubKeyCollateralAddress.GetID()).ToString());
+            }
+
         } else {
-            LogPrintf("%s: winningNode NOT found by mnodeman, using MinMnCollateral", __func__);
+            if (fDebug) {
+                LogPrintf("%s: winningNode NOT found by mnodeman, using MinMnCollateral", __func__);
+            }
         }
 
         requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, collateral);
@@ -627,8 +632,10 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
                 if (out.nValue == requiredMasternodePayment)
                 {
                     found = true;
-                    LogPrintf("Masternode payment must be %s (collateral %s) .\n",
-                            FormatMoney(requiredMasternodePayment).c_str(), FormatMoney(collateral).c_str());
+                    if (fDebug) {
+                        LogPrintf("Masternode payment must be %s (collateral %s) .\n",
+                                FormatMoney(requiredMasternodePayment).c_str(), FormatMoney(collateral).c_str());
+                    }
                 }
                 else
                 {
