@@ -171,18 +171,6 @@ void MasternodeList::StartAll(std::string strCommand)
     updateMyNodeList(true);
 }
 
-QString getCollateralString(CAmount collateral)
-{
-    if (collateral > 0)
-    {
-        return BitcoinUnits::floorWithUnit(BitcoinUnits::FLX, collateral);
-    }
-    else
-    {
-        return QString::fromStdString("UNKNOWN");
-    }
-}
-
 void MasternodeList::updateMyMasternodeInfo(QString strAlias, QString strAddr, CMasternode* pmn)
 {
     LOCK(cs_mnlistupdate);
@@ -203,7 +191,7 @@ void MasternodeList::updateMyMasternodeInfo(QString strAlias, QString strAddr, C
     }
 
     QTableWidgetItem* aliasItem = new QTableWidgetItem(strAlias);
-    QTableWidgetItem* collateralItem = new QTableWidgetItem(pmn ? getCollateralString(pmn->collateral) : "UNKNOWN");
+    GUIUtil::CAmountTableWidgetItem* collateralItem = new GUIUtil::CAmountTableWidgetItem(pmn ? pmn->collateral : CAmount(0));
     QTableWidgetItem* addrItem = new QTableWidgetItem(pmn ? QString::fromStdString(pmn->addr.ToString()) : strAddr);
     QTableWidgetItem* protocolItem = new QTableWidgetItem(QString::number(pmn ? pmn->protocolVersion : -1));
     QTableWidgetItem* statusItem = new QTableWidgetItem(QString::fromStdString(pmn ? pmn->GetStatus() : "MISSING"));
@@ -278,7 +266,7 @@ void MasternodeList::updateNodeList()
         // populate list
         // Address, Collateral, Protocol, Status, Active Seconds, Last Seen, Pub Key
         QTableWidgetItem* addressItem = new QTableWidgetItem(QString::fromStdString(mn.addr.ToString()));
-        QTableWidgetItem* collateralItem = new QTableWidgetItem(getCollateralString(mn.collateral));
+        GUIUtil::CAmountTableWidgetItem* collateralItem = new GUIUtil::CAmountTableWidgetItem(mn.collateral);
         QTableWidgetItem* protocolItem = new QTableWidgetItem(QString::number(mn.protocolVersion));
         QTableWidgetItem* statusItem = new QTableWidgetItem(QString::fromStdString(mn.GetStatus()));
         GUIUtil::DHMSTableWidgetItem* activeSecondsItem = new GUIUtil::DHMSTableWidgetItem(mn.lastPing.sigTime - mn.sigTime);
@@ -287,6 +275,7 @@ void MasternodeList::updateNodeList()
 
         if (strCurrentFilter != "") {
             strToFilter = addressItem->text() + " " +
+                          collateralItem->text() + " " +
                           protocolItem->text() + " " +
                           statusItem->text() + " " +
                           activeSecondsItem->text() + " " +

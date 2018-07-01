@@ -187,6 +187,17 @@ private:
     int64_t value;
 };
 
+class CAmountTableWidgetItem : public QTableWidgetItem
+{
+public:
+    CAmountTableWidgetItem(const CAmount amount);
+    virtual bool operator<(QTableWidgetItem const& item) const;
+
+private:
+    // Private backing value for CAmount string, used for sorting.
+    CAmount value;
+};
+
 bool GetStartOnSystemStartup();
 bool SetStartOnSystemStartup(bool fAutoStart);
 
