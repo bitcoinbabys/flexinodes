@@ -547,7 +547,7 @@ bool CMasternodePayments::AddWinningMasternode(CMasternodePaymentWinner& winnerI
     }
 
     {
-        LOCK2(cs_mapMasternodePayeeVotes, cs_mapMasternodeBlocks);
+        LOCK2(cs_mapMasternodeBlocks, cs_mapMasternodePayeeVotes);
 
         if (mapMasternodePayeeVotes.count(winnerIn.GetHash())) {
             return false;
@@ -608,9 +608,14 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
 
         if (winningNode) {
             collateral = winningNode->collateral;
-            LogPrintf("%s: winningNode found by mnodeman: %s" , __func__, CBitcoinAddress(winningNode->pubKeyCollateralAddress.GetID()).ToString());
+            if (fDebug) {
+                LogPrintf("%s: winningNode found by mnodeman: %s" , __func__, CBitcoinAddress(winningNode->pubKeyCollateralAddress.GetID()).ToString());
+            }
+
         } else {
-            LogPrintf("%s: winningNode NOT found by mnodeman, using MinMnCollateral", __func__);
+            if (fDebug) {
+                LogPrintf("%s: winningNode NOT found by mnodeman, using MinMnCollateral", __func__);
+            }
         }
 
         requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, collateral);
@@ -627,8 +632,10 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
                 if (out.nValue == requiredMasternodePayment)
                 {
                     found = true;
-                    LogPrintf("Masternode payment must be %s (collateral %s) .\n",
-                            FormatMoney(requiredMasternodePayment).c_str(), FormatMoney(collateral).c_str());
+                    if (fDebug) {
+                        LogPrintf("Masternode payment must be %s (collateral %s) .\n",
+                                FormatMoney(requiredMasternodePayment).c_str(), FormatMoney(collateral).c_str());
+                    }
                 }
                 else
                 {
@@ -706,7 +713,7 @@ bool CMasternodePayments::IsTransactionValid(const CTransaction& txNew, int nBlo
 
 void CMasternodePayments::CleanPaymentList()
 {
-    LOCK2(cs_mapMasternodePayeeVotes, cs_mapMasternodeBlocks);
+    LOCK2(cs_mapMasternodeBlocks, cs_mapMasternodePayeeVotes);
 
     int nHeight;
     {

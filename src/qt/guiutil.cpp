@@ -6,6 +6,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "guiutil.h"
+#include "bitcoinunits.h"
 
 #include "bitcoinaddressvalidator.h"
 #include "bitcoinunits.h"
@@ -572,6 +573,33 @@ bool DHMSTableWidgetItem::operator<(QTableWidgetItem const& item) const
 {
     DHMSTableWidgetItem const* rhs =
         dynamic_cast<DHMSTableWidgetItem const*>(&item);
+
+    if (!rhs)
+        return QTableWidgetItem::operator<(item);
+
+    return value < rhs->value;
+}
+
+CAmountTableWidgetItem::CAmountTableWidgetItem(const CAmount amount) : QTableWidgetItem(),
+                                                                  value(amount)
+{
+    QString res;
+    if (amount > 0)
+    {
+        res = BitcoinUnits::floorWithUnit(BitcoinUnits::FLX, amount);
+    }
+    else
+    {
+        res = QString::fromStdString("UNKNOWN");
+    }
+
+    this->setText(res);
+}
+
+bool CAmountTableWidgetItem::operator<(QTableWidgetItem const& item) const
+{
+    CAmountTableWidgetItem const* rhs =
+        dynamic_cast<CAmountTableWidgetItem const*>(&item);
 
     if (!rhs)
         return QTableWidgetItem::operator<(item);

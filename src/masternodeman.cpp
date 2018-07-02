@@ -452,10 +452,12 @@ CMasternode* CMasternodeMan::Find(const CPubKey& pubKeyMasternode)
 //
 CMasternode* CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool fFilterSigTime, int& nCount)
 {
-    LOCK(cs);
 
     CMasternode* pBestMasternode = NULL;
     std::vector<pair<int64_t, CTxIn> > vecMasternodeLastPaid;
+
+    // Need LOCK2 here to ensure consistent locking order because the GetBlockHash call below locks cs_main
+    LOCK2(cs_main,cs);
 
     /*
         Make a vector with all of the last paid times
