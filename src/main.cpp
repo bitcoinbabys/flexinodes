@@ -1645,7 +1645,6 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, CAmount mnCollater
 
 bool IsInitialBlockDownload()
 {
-    return false;
 	LOCK(cs_main);
     if (fImporting || fReindex || chainActive.Height() < Checkpoints::GetTotalBlocksEstimate())
         return true;
@@ -5359,6 +5358,10 @@ int ActiveProtocol()
     // SPORK_15 is used for 70910. Nodes < 70910 don't see it and still get their protocol version via SPORK_14 and their 
     // own ModifierUpgradeBlock()
  
+    if (chainActive.Tip()->nHeight >= 114566) { //480 * 30
+        return MIN_PEER_PROTO_VERSION_CHECKPOINT_FORK_1;
+    }
+
     if (IsSporkActive(SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2))
             return MIN_PEER_PROTO_VERSION_AFTER_ENFORCEMENT;
 
