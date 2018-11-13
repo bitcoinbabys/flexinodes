@@ -55,12 +55,16 @@ static void convertSeed6(std::vector<CAddress>& vSeedsOut, const SeedSpec6* data
 // + Contains no strange transactions
 
 static Checkpoints::MapCheckpoints mapCheckpoints =
-    boost::assign::map_list_of(0, uint256("0x00000711a403866ce72d5c3633b93a0269495f34a091a1507bd04cdb71abafe1"));
-;
+    boost::assign::map_list_of(0, uint256("0x00000711a403866ce72d5c3633b93a0269495f34a091a1507bd04cdb71abafe1"))
+    (1, uint256("00000362887d306e6e86e1be49d6e9c6ed6f66892277474e0582854bb6cf61c9"))
+    (100, uint256("000000cbc9f9b563b7d64a66a21001a7b562c08e7b7cbf31f1e5a67709f0a3a4"))
+    (1000, uint256("a3a448df4943418e89ef3957d434fc0f20732d86c027435693100a282c49fba2"))
+    (99973, uint256("56d7dfff4adaeac1343767893b179b498a7151ecdd08274647c393b8307d489f"))
+    ;
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
-    1529089192, // * UNIX timestamp of last checkpoint block
-    1,    // * total number of transactions between genesis and last checkpoint
+    1540104011, // * UNIX timestamp of last checkpoint block
+    168028,    // * total number of transactions between genesis and last checkpoint
                 //   (the tx=... number in the SetBestChain debug.log lines)
     720        // * estimated number of transactions per day after checkpoint
 };
@@ -102,7 +106,7 @@ public:
         bnProofOfWorkLimit = ~uint256(0) >> 20;
         bnProofOfStakeLimit = ~uint256(0) >> 16;
         nSubsidyHalvingInterval = 262800;
-        nMaxReorganizationDepth = 100;
+        nMaxReorganizationDepth = 30000;
         nEnforceBlockUpgradeMajority = 750;
         nRejectBlockOutdatedMajority = 950;
         nToCheckBlockUpgradeMajority = 1000;
@@ -156,14 +160,16 @@ public:
         assert(hashGenesisBlock == uint256("0x00000711a403866ce72d5c3633b93a0269495f34a091a1507bd04cdb71abafe1"));
         assert(genesis.hashMerkleRoot == uint256("0x58e6ef05a528902e903b261900d95e314d2412bf1276e6fe80625a9d0e20835a"));
         
+        vFixedSeeds.clear();
+        vSeeds.clear();
+
         vSeeds.push_back(CDNSSeedData("flexinodes-seednode-1.dynu.net:25793", "flexinodes-seednode-1.dynu.net:25793"));
         vSeeds.push_back(CDNSSeedData("flexinodes-seednode-1.dynu.net:25794", "flexinodes-seednode-1.dynu.net:25794"));
         vSeeds.push_back(CDNSSeedData("flexinodes-seednode-1.dynu.net:25795", "flexinodes-seednode-1.dynu.net:25795"));
         vSeeds.push_back(CDNSSeedData("flexinodes-seednode-2.dynu.net:25793", "flexinodes-seednode-2.dynu.net:25793"));
         vSeeds.push_back(CDNSSeedData("flexinodes-seednode-2.dynu.net:25794", "flexinodes-seednode-2.dynu.net:25794"));
 
-        //vFixedSeeds.clear();
-        //vSeeds.clear();
+
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 35);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 16);
@@ -173,10 +179,10 @@ public:
         // 	BIP44 coin type is from https://github.com/satoshilabs/slips/blob/master/slip-0044.md 109 	0x8000006d
         base58Prefixes[EXT_COIN_TYPE] = boost::assign::list_of(0x80)(0x00)(0x00)(0x6d).convert_to_container<std::vector<unsigned char> >();
 
-        convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
+        //convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
 
         fRequireRPCPassword = true;
-        fMiningRequiresPeers = false;
+        fMiningRequiresPeers = true;
         fAllowMinDifficultyBlocks = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
@@ -186,7 +192,7 @@ public:
         fHeadersFirstSyncingActive = false;
 
         nPoolMaxTransactions = 3;
-        strSporkKey = "0278c3e932fbe183b2f665de901966cb1cfc5ed3b0bf733b72286f265ffc03ff52dfd669fbb3f77d630e5393da65c721a9a891d2c4c6aa515dfd25ffe545582357";
+        strSporkKey = "043635a66ad599a93face6d23f09c96d2a17d18771ab70538862232aaacb5fe07087e016e5cd935478308e45cc533b4a98739d84a0aa8e7017633347909280b1a9";
         strDarksendPoolDummyAddress = "AcmpqXViWUXNroqVNYRdKjKrFM6PNa1oTM";
         nStartMasternodePayments = 1523967685; 
     }
